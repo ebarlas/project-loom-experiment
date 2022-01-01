@@ -203,4 +203,4 @@ not significantly more than with NIO.
 footprint. The cumulative CPU time of echo clients using platform threads is only marginally higher than 
 the other echo clients.
 * The slogan "codes like sync, scaled like async" is accurate. Virtual threads are an excellent 
-lternative to asynchronous programming with non-blocking NIO.
+alternative to asynchronous programming with non-blocking NIO.
