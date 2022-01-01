@@ -94,6 +94,10 @@ Java classes were compiled and executed with an OpenJDK 19 Loom early access bui
 
 https://download.java.net/java/early_access/loom/1/openjdk-19-loom+1-11_linux-x64_bin.tar.gz
 
+```
+jdk-19/bin/javac --enable-preview --release 19 loomtest/*.java
+```
+
 The server instance used was started as follows:
 
 ```
@@ -139,10 +143,25 @@ for i in $(echo "100 1000 5000 10000 15000 20000 25000 30000 35000 40000 45000 5
 done
 ```
 
+Snippet of output from an execution of one client:
+
+```
+Args[host=10.39.196.180, port=9000, numConnections=50000, contentLength=32, duration=60000]
+barrier opened!
+duration: 61006 ms, throughput: 47446.906862 msg/sec
+```
+
 Metrics were gathered on the client host using the `ps` command:
 
 ```
 while true; do ps -C java -o args:100,pcpu,c,cp,bsdtime,cputime,pid,pmem,rss,drs,trs,vsz; echo ""; sleep 1; done | tee ps.txt
+```
+
+Snippet of output from an invocation of ps:
+
+```
+COMMAND                                                                                              %CPU  C  CP   TIME     TIME   PID %MEM   RSS   DRS  TRS    VSZ
+jdk-19/bin/java --enable-preview loomtest.NioEchoClient 10.39.196.180 9000 50000 32 60000            76.5 76 765   1:36 00:01:36 10078  1.4 237488 7430752 3 7430756
 ```
 
 ## Results
@@ -191,6 +210,45 @@ Exception in thread "main" java.lang.OutOfMemoryError: unable to create native t
 	at java.base/java.util.stream.ReferencePipeline.toArray(ReferencePipeline.java:622)
 	at java.base/java.util.stream.ReferencePipeline.toList(ReferencePipeline.java:627)
 	at loomtest.ThreadedEchoClient.main(ThreadedEchoClient.java:95)
+```
+
+The plot above was creation with Python and `matplotlib`.
+
+```
+x = [100, 1000, 5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000]
+
+nio = {
+    'label': 'NIO',
+    'throughput': [...],
+    'cputime': [...],
+    'rss': [...],
+    'vsz': [...]
+}
+
+virtual = {
+    ...
+}
+
+classic = {
+    ...
+}
+
+import matplotlib.pyplot as plt
+
+fig, axes = plt.subplots(2, 2)
+
+ax11, ax21, ax12, ax22 = axes.ravel()
+
+for d in [nio, virtual, classic]:
+    size = len(d['throughput'])
+    ax11.plot(x[0:size], d['throughput'], label=d['label'])
+ax11.set_xlabel('Connections')
+ax11.set_ylabel('Messages per second')
+ax11.set_title('Throughput')
+ax11.grid()
+ax11.legend()
+
+...
 ```
 
 ## Conclusions
