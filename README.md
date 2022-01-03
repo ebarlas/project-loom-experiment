@@ -262,3 +262,11 @@ footprint. The cumulative CPU time of echo clients using platform threads is onl
 the other echo clients.
 * The slogan "codes like sync, scaled like async" is accurate. Virtual threads are an excellent 
 alternative to asynchronous programming with non-blocking NIO.
+
+## Other Notes
+
+In an attempt to verify that the `NioEchoServer` implementation wasn't a bottleneck or causing undue slowness,
+I ran echo clients against a C echo server implementation built atop epoll. 
+
+This efficient and minimal [echo server](https://github.com/frevib/epoll-echo-server) was almost a drop in replacement. 
+Performance metrics were consistent with the Java implementation in this repository.
